@@ -1,6 +1,8 @@
 ---
 import Base from "../layouts/Base.astro";
 import ProductCard from "../components/ProductCard.astro";
+import TrustBar from "../components/TrustBar.astro";
+import Testimonials from "../components/Testimonials.astro";
 import { site } from "../data/site";
 
 const featured = site.products.filter((p) => p.featured);
@@ -8,38 +10,54 @@ const featured = site.products.filter((p) => p.featured);
 
 <Base title="Home">
   <section class="text-center py-16">
-    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">{site.tagline}</h1>
+    <p class="text-sm font-semibold text-brand uppercase tracking-widest">New season drop is live</p>
+    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mt-3">{site.tagline}</h1>
     <p class="mt-4 text-lg text-gray-600 max-w-xl mx-auto">{site.description}</p>
-    <a
-      href="/products"
-      class="inline-block mt-8 bg-brand text-white font-semibold px-6 py-3 rounded-xl hover:bg-brand-dark transition-colors"
-    >
-      Shop now
-    </a>
+    <div class="mt-8 flex gap-3 justify-center">
+      <a href="/products" class="bg-brand text-white font-semibold px-6 py-3 rounded-xl hover:bg-brand-dark transition-colors">
+        Shop now
+      </a>
+      <a href="/products?category=gifts" class="border border-gray-300 font-semibold px-6 py-3 rounded-xl hover:border-brand transition-colors">
+        Find a gift
+      </a>
+    </div>
   </section>
 
-  <section class="grid gap-4 sm:grid-cols-3 mb-16">
+  <TrustBar />
+
+  <section class="grid gap-4 sm:grid-cols-3 mb-4">
     {
       site.categories.map((cat) => (
         <a
           href={`/products?category=${cat.id}`}
-          class="bg-white border border-gray-200 rounded-xl p-6 hover:border-brand transition-colors"
+          class="bg-white border border-gray-200 rounded-xl p-6 hover:border-brand hover:shadow-md transition-all"
         >
           <h2 class="font-bold text-lg">{cat.label}</h2>
           <p class="text-sm text-gray-500 mt-1">{cat.blurb}</p>
+          <p class="text-sm text-brand font-medium mt-3">Browse {cat.label} →</p>
         </a>
       ))
     }
   </section>
 
-  <section>
-    <h2 class="text-2xl font-bold mb-6">Featured</h2>
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      {
-        featured.map((product) => (
-          <ProductCard product={product} currency={site.currency} />
-        ))
-      }
+  <section class="my-16">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold">Featured</h2>
+      <a href="/products" class="text-sm font-medium text-brand hover:underline">View all →</a>
     </div>
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {featured.map((product) => <ProductCard product={product} currency={site.currency} />)}
+    </div>
+  </section>
+
+  <Testimonials />
+
+  <section class="bg-brand text-white rounded-2xl p-10 text-center my-8">
+    <h2 class="text-2xl font-bold">Get 10% off your first order</h2>
+    <p class="text-white/80 mt-2 text-sm">Join the list — new drops, early access, zero spam.</p>
+    <form class="mt-6 flex gap-2 max-w-md mx-auto" onsubmit="event.preventDefault(); this.reset(); alert('Subscribed! (demo)')">
+      <input required type="email" placeholder="you@email.com" class="flex-1 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none" />
+      <button class="bg-white text-brand font-semibold px-5 py-2.5 rounded-lg hover:bg-gray-100 transition-colors">Join</button>
+    </form>
   </section>
 </Base>
