@@ -1,0 +1,76 @@
+---
+import Base from "../layouts/Base.astro";
+import { site, site as s } from "../data/site";
+---
+
+<Base title="Cart">
+  <h1 class="text-3xl font-bold mb-8">Your Cart</h1>
+  <div id="cart-items" class="space-y-4"></div>
+  <div id="cart-empty" class="hidden text-gray-500">Your cart is empty. <a href="/products" class="text-brand hover:underline">Go shopping →</a></div>
+
+  <div id="cart-summary" class="hidden mt-8 bg-white border border-gray-200 rounded-xl p-6 max-w-sm ml-auto">
+    <div class="flex justify-between text-lg font-bold">
+      <span>Total</span>
+      <span id="cart-total">$0.00</span>
+    </div>
+    <button class="mt-4 w-full bg-brand text-white font-semibold py-3 rounded-xl hover:bg-brand-dark transition-colors">
+      Checkout
+    </button>
+    <p class="text-xs text-gray-400 mt-2 text-center">Checkout is wired per client (Stripe, PayPal, etc.)</p>
+  </div>
+
+  <script>
+    import { site, formatPrice } from "../data/site";
+
+    const byId = new Map(site.products.map((p) => [p.id, p]));
+
+    const render = () => {
+      const raw = localStorage.getItem("cart");
+      const cart: Record<string, number> = raw ? JSON.parse(raw) : {};
+      const itemsEl = document.getElementById("cart-items")!;
+      const emptyEl = document.getElementById("cart-empty")!;
+      const summaryEl = document.getElementById("cart-summary")!;
+      itemsEl.innerHTML = "";
+
+      const entries = Object.entries(cart).filter(([id]) => byId.has(id));
+      if (entries.length === 0) {
+        emptyEl.classList.remove("hidden");
+        summaryEl.classList.add("hidden");
+        return;
+      }
+      emptyEl.classList.add("hidden");
+      summaryEl.classList.remove("hidden");
+
+      let total = 0;
+      for (const [id, qty] of entries) {
+        const p = byId.get(id)!;
+        total += p.price * qty;
+        const row = document.createElement("div");
+        row.className = "bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-4";
+        row.innerHTML = `
+          <img src="${p.image}" alt="${p.name}" class="h-16 w-16 rounded-lg object-cover" />
+          <div class="flex-1">
+            <p class="font-semibold">${p.name}</p>
+            <p class="text-sm text-gray-500">${formatPrice(p.price, site.currency)} × ${qty}</p>
+          </div>
+          <span class="font-bold">${formatPrice(p.price * qty, site.currency)}</span>
+          <button data-remove="${id}" class="text-gray-400 hover:text-red-500 text-xl" aria-label="Remove">✕</button>
+        `;
+        itemsEl.appendChild(row);
+      }
+      document.getElementById("cart-total")!.textContent = formatPrice(total, site.currency);
+
+      itemsEl.querySelectorAll<HTMLButtonElement>("[data-remove]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          delete cart[btn.dataset.remove!];
+          localStorage.setItem("cart", JSON.stringify(cart));
+          window.dispatchEvent(new Event("cart:updated"));
+          render();
+        });
+      });
+    };
+
+    render();
+    window.addEventListener("cart:updated", render);
+  </script>
+</Base>

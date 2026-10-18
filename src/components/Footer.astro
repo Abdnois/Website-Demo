@@ -1,0 +1,35 @@
+---
+import { site } from "../data/site";
+---
+
+<footer class="bg-gray-900 text-gray-300 mt-16">
+  <div class="max-w-6xl mx-auto px-4 py-10 grid gap-8 sm:grid-cols-3">
+    <div>
+      <p class="font-bold text-white">{site.name}</p>
+      <p class="text-sm mt-2">{site.tagline}</p>
+    </div>
+    <div class="text-sm">
+      <p class="font-semibold text-white mb-2">Contact</p>
+      <p>{site.contact.email}</p>
+      <p>{site.contact.phone}</p>
+      <p>{site.contact.address}</p>
+    </div>
+    <div class="text-sm">
+      <p class="font-semibold text-white mb-2">Follow</p>
+      <ul class="space-y-1">
+        {
+          site.socials.map((s) => (
+            <li>
+              <a href={s.url} class="hover:text-white" rel="noopener">
+                {s.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+  <div class="border-t border-gray-800 py-4 text-center text-xs text-gray-500">
+    © {new Date().getFullYear()} {site.name}. All rights reserved.
+  </div>
+</footer>

@@ -1,0 +1,45 @@
+---
+import Base from "../layouts/Base.astro";
+import ProductCard from "../components/ProductCard.astro";
+import { site } from "../data/site";
+
+const featured = site.products.filter((p) => p.featured);
+---
+
+<Base title="Home">
+  <section class="text-center py-16">
+    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">{site.tagline}</h1>
+    <p class="mt-4 text-lg text-gray-600 max-w-xl mx-auto">{site.description}</p>
+    <a
+      href="/products"
+      class="inline-block mt-8 bg-brand text-white font-semibold px-6 py-3 rounded-xl hover:bg-brand-dark transition-colors"
+    >
+      Shop now
+    </a>
+  </section>
+
+  <section class="grid gap-4 sm:grid-cols-3 mb-16">
+    {
+      site.categories.map((cat) => (
+        <a
+          href={`/products?category=${cat.id}`}
+          class="bg-white border border-gray-200 rounded-xl p-6 hover:border-brand transition-colors"
+        >
+          <h2 class="font-bold text-lg">{cat.label}</h2>
+          <p class="text-sm text-gray-500 mt-1">{cat.blurb}</p>
+        </a>
+      ))
+    }
+  </section>
+
+  <section>
+    <h2 class="text-2xl font-bold mb-6">Featured</h2>
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        featured.map((product) => (
+          <ProductCard product={product} currency={site.currency} />
+        ))
+      }
+    </div>
+  </section>
+</Base>

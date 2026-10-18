@@ -1,0 +1,32 @@
+---
+import { site } from "../data/site";
+---
+
+<header class="bg-white border-b border-gray-200">
+  <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+    <a href="/" class="text-xl font-bold text-brand">{site.name}</a>
+    <nav class="flex items-center gap-6">
+      {
+        site.navigation.map((item) => (
+          <a
+            href={item.href}
+            class="text-sm font-medium text-gray-600 hover:text-brand transition-colors"
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a
+        href="/cart"
+        class="relative text-sm font-medium text-gray-600 hover:text-brand"
+        aria-label="Cart"
+      >
+        🛒
+        <span
+          data-cart-count
+          class="absolute -top-2 -right-3 bg-brand text-white text-[10px] rounded-full h-4 min-w-4 px-1 grid place-items-center">0</span
+        >
+      </a>
+    </nav>
+  </div>
+</header>

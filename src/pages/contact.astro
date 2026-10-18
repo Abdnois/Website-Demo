@@ -1,0 +1,21 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../data/site";
+---
+
+<Base title="Contact">
+  <h1 class="text-3xl font-bold mb-8">Contact Us</h1>
+  <div class="grid gap-8 md:grid-cols-2">
+    <div class="bg-white border border-gray-200 rounded-xl p-6 space-y-3">
+      <p><span class="font-semibold">Email:</span> {site.contact.email}</p>
+      <p><span class="font-semibold">Phone:</span> {site.contact.phone}</p>
+      <p><span class="font-semibold">Address:</span> {site.contact.address}</p>
+    </div>
+    <form class="bg-white border border-gray-200 rounded-xl p-6 space-y-4" onsubmit="event.preventDefault(); this.reset(); alert('Message sent (demo)')">
+      <input required placeholder="Name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand" />
+      <input required type="email" placeholder="Email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand" />
+      <textarea required rows="4" placeholder="Message" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand"></textarea>
+      <button class="bg-brand text-white font-semibold px-6 py-2.5 rounded-xl hover:bg-brand-dark transition-colors">Send</button>
+    </form>
+  </div>
+</Base>
