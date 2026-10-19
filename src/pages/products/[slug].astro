@@ -17,18 +17,13 @@ interface Props {
 const { product } = Astro.props;
 const onSale = product.compareAtPrice !== undefined && product.compareAtPrice > product.price;
 const discount = onSale ? Math.round((1 - product.price / product.compareAtPrice!) * 100) : 0;
-const badgeClass = product.badge === "Sale" ? "bg-red-500 text-white" : product.badge === "New" ? "bg-brand text-white" : "bg-amber-400 text-gray-900";
-const badgeLabel = product.badge === "Sale" ? "%" : (product.badge ?? "");
-const stockText = product.stock <= 10 ? "Low stock" : "In stock";
-const stockClass = product.stock <= 10 ? "text-red-600" : "text-green-600";
-const related = site.products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
 ---
 
 <Base title={product.name} description={product.description} image={product.images[0]}>
   <nav class="text-sm text-gray-500 mb-6">
-    <a href="/" class="hover:text-brand">Home</a>
-    <a class="ml-2 hover:text-brand">{product.category}</a>
-    <span class="ml-2 text-gray-900">{product.name}</span>
+    <a href="/" class="hover:text-brand">Home</a> /
+    <a href="/products?category=" + product.category class="hover:text-brand capitalize">{product.category}</a> /
+    <span class="text-gray-900">{product.name}</span>
   </nav>
 
   <div class="grid gap-10 md:grid-cols-2">
@@ -40,20 +35,23 @@ const related = site.products.filter((p) => p.category === product.category && p
           alt={product.name}
           class="rounded-xl border border-gray-200 aspect-square w-full object-cover"
         />
-        {product.badge && <span class={badgeClass}>{badgeLabel}</span>}
+        {product.badge && <span class={"absolute top-4 left-4 text-sm font-bold px-3 py-1.5 rounded-full " + (onSale ? "bg-red-500 text-white" : product.badge === "New" ? "bg-brand text-white" : "bg-amber-400 text-gray-900")}>{onSale ? "-" + discount + "%" : product.badge}</span>}
       </div>
-      {product.images.length > 1 && (
-        <div class="flex gap-3 mt-4">
-          {product.images.map((src) => (
-            <img
-              src={src}
-              alt=""
-              class="h-20 w-20 rounded-lg object-cover border border-transparent hover:border-gray-300"
-              loading="lazy"
-            />
-          ))}
-        </div>
-      )}
+      {
+        product.images.length > 1 && (
+          <div class="flex gap-3 mt-4" data-gallery>
+            {product.images.map((src, i) => (
+              <button
+                class="rounded-lg overflow-hidden border-2 transition-colors " + (i === 0 ? "border-brand" : "border-transparent hover:border-gray-300")
+                data-thumb={src}
+                aria-label="View image " + (i + 1)
+              >
+                <img src={src} alt="" class="h-20 w-20 object-cover" loading="lazy" />
+              </button>
+            ))}
+          </div>
+        )
+      }
     </div>
 
     <div class="flex flex-col">
@@ -61,24 +59,29 @@ const related = site.products.filter((p) => p.category === product.category && p
       <h1 class="text-3xl font-bold mt-1">{product.name}</h1>
 
       <div class="flex items-center gap-2 mt-2 text-sm">
-        <span class="text-amber-500">{product.rating}</span>
-        <span class="text-gray-500">{product.reviews} reviews</span>
+        <span class="text-amber-500">{"★".repeat(Math.round(product.rating))}</span>
+        <span class="text-gray-500">{product.rating} · {product.reviews} reviews</span>
       </div>
 
       <div class="flex items-baseline gap-3 mt-4">
         <span class="text-3xl font-bold">{formatPrice(product.price, site.currency)}</span>
-        {onSale && <span class="text-lg text-gray-400 line-through">{formatPrice(product.compareAtPrice!, site.currency)}</span>}
+        {product.compareAtPrice && product.compareAtPrice > product.price && <span class="text-lg text-gray-400 line-through">{formatPrice(product.compareAtPrice, site.currency)}</span>}
       </div>
 
       <p class="text-gray-600 mt-4">{product.description}</p>
 
       <ul class="mt-5 space-y-2 text-sm text-gray-600">
-        {product.details.map((d) => (
-          <li class="flex gap-2"><span class="text-brand">✓</span>{d}</li>
-        ))}
+        {
+          product.details.map((d) => (
+            <li class="flex gap-2">
+              <span class="text-brand">✓</span>
+              {d}
+            </li>
+          ))
+        }
       </ul>
 
-      <p class={stockClass + " mt-5 text-sm font-medium"}>{stockText}</p>
+      <p class="mt-5 text-sm font-medium " + (product.stock <= 10 ? "text-red-600" : "text-green-600")>{product.stock <= 10 ? "⚠ Only " + product.stock + " left in stock" : "✓ In stock"}</p>
 
       <div class="mt-6 flex items-center gap-3">
         <div class="flex items-center border border-gray-300 rounded-xl overflow-hidden">
@@ -96,28 +99,35 @@ const related = site.products.filter((p) => p.category === product.category && p
       </div>
 
       <div class="mt-6 grid grid-cols-3 gap-3 text-center text-xs text-gray-500">
-        <div class="border border-gray-200 rounded-lg py-3">Free ship $50+</div>
-        <div class="border border-gray-200 rounded-lg py-3">30-day returns</div>
-        <div class="border border-gray-200 rounded-lg py-3">Secure checkout</div>
+        <div class="border border-gray-200 rounded-lg py-3">🚚<br />Free ship $50+</div>
+        <div class="border border-gray-200 rounded-lg py-3">↩️<br />30-day returns</div>
+        <div class="border border-gray-200 rounded-lg py-3">🔒<br />Secure checkout</div>
       </div>
     </div>
   </div>
 
-  {related.length > 0 && (
-    <section class="mt-20">
-      <h2 class="text-2xl font-bold mb-6">You might also like</h2>
-      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {related.map((p) => <ProductCard product={p} currency={site.currency} />)}
-      </div>
-    </section>
-  )}
+  <section class="mt-20">
+    <h2 class="text-2xl font-bold mb-6">You might also like</h2>
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {(function() {
+        const related = site.products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
+        return related.map((p) => (
+          <ProductCard product={p} currency={site.currency} />
+        ));
+      })()}
+    </div>
+  </section>
 
   <script>
     const main = document.getElementById("main-image") as HTMLImageElement | null;
-    const thumbs = document.querySelectorAll<HTMLImageElement>("div[data-gallery] img");
-    thumbs.forEach((img, i) => {
-      img.addEventListener("click", () => {
-        if (main) main.src = img.src;
+    document.querySelectorAll<HTMLButtonElement>("[data-thumb]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const src = btn.dataset.thumb!;
+        if (main) main.src = src;
+        document
+          .querySelectorAll<HTMLButtonElement>("[data-thumb]")
+          .forEach((b) => b.classList.replace("border-brand", "border-transparent"));
+        btn.classList.replace("border-transparent", "border-brand");
       });
     });
 
@@ -140,7 +150,7 @@ const related = site.products.filter((p) => p.category === product.category && p
       cart[id] = (cart[id] ?? 0) + qty;
       localStorage.setItem("cart", JSON.stringify(cart));
       window.dispatchEvent(new Event("cart:updated"));
-      btn.textContent = "Added " + qty;
+      btn.textContent = "Added " + qty + " ✓";
       setTimeout(() => (btn.textContent = "Add to cart"), 1200);
     });
   </script>

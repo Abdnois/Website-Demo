@@ -1,0 +1,32 @@
+﻿---
+import Base from "../layouts/Base.astro";
+import { site } from "../data/site";
+---
+
+<Base
+  title="Page not found"
+  description="Sorry, we couldn’t find that page."
+  image={site.socials[0].url}
+>
+  <main class="max-w-2xl mx-auto text-center mt-20">
+    <div class="text-6xl mb-4">🔍</div>
+    <h1 class="text-3xl font-bold">Page not found</h1>
+    <p class="text-gray-600 mt-3">Sorry, we couldn’t find that page.</p>
+    <div class="mt-6 flex gap-4 justify-center">
+      <a
+        href="/"
+        class="bg-brand text-white font-semibold px-6 py-3 rounded-xl hover:bg-brand-dark transition-colors"
+      >
+        Go home
+      </a>
+      <a
+        href="/products"
+        class="border border-gray-300 rounded-xl px-6 py-3 hover:bg-gray-100 transition-colors"
+      >
+        Back to shop
+      </a>
+    </div>
+  </main>
+</Base>
+
+

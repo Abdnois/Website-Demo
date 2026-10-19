@@ -13,10 +13,10 @@ import { site, site as s } from "../data/site";
       <span>Total</span>
       <span id="cart-total">$0.00</span>
     </div>
-    <button class="mt-4 w-full bg-brand text-white font-semibold py-3 rounded-xl hover:bg-brand-dark transition-colors">
+    <button id="checkout-btn" class="mt-4 w-full bg-brand text-white font-semibold py-3 rounded-xl hover:bg-brand-dark transition-colors">
       Checkout
     </button>
-    <p class="text-xs text-gray-400 mt-2 text-center">Checkout is wired per client (Stripe, PayPal, etc.)</p>
+    <p class="text-xs text-gray-400 mt-2 text-center">Powered by Stripe</p>
   </div>
 
   <script>
@@ -72,5 +72,42 @@ import { site, site as s } from "../data/site";
 
     render();
     window.addEventListener("cart:updated", render);
+
+    const checkoutBtn = document.getElementById("checkout-btn");
+    checkoutBtn?.addEventListener("click", async () => {
+      const raw = localStorage.getItem("cart");
+      const cart: Record<string, number> = raw ? JSON.parse(raw) : {};
+      const byId = Object.fromEntries(site.products.map((p) => [p.id, p]));
+
+      const items = Object.entries(cart)
+        .filter(([id]) => byId.hasOwnProperty(id))
+        .map(([id, qty]) => ({
+          slug: byId[id].slug,
+          qty,
+        }));
+
+      try {
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items }),
+        });
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          alert(body.error || "Checkout failed");
+          return;
+        }
+
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert("No checkout URL returned");
+        }
+      } catch (err) {
+        alert(err instanceof Error ? err.message : "Network error");
+      }
+    });
   </script>
 </Base>
